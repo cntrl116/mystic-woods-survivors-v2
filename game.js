@@ -4,6 +4,7 @@ const Game = {
   width: 0,
   height: 0,
   camera: { x: 0, y: 0 },
+  mapSize: 3000,
   state: 'LOADING',
   sprites: {},
   lastTime: 0,
@@ -105,12 +106,15 @@ const Game = {
     const tileSize = 16;
     const tilesPerRow = Math.floor(plains.width / tileSize);
     const tilesPerCol = Math.floor(plains.height / tileSize);
-    const mapW = 2000;
-    const mapH = 2000;
-    for (let y = 0; y < mapH; y += tileSize) {
-      for (let x = 0; x < mapW; x += tileSize) {
-        const tx = Math.floor((x / tileSize) % tilesPerRow);
-        const ty = Math.floor((y / tileSize) % tilesPerCol);
+    const mapExtent = 3000;
+    const startX = Math.max(0, Math.floor((this.camera.x) / tileSize) * tileSize);
+    const startY = Math.max(0, Math.floor((this.camera.y) / tileSize) * tileSize);
+    const endX = Math.min(mapExtent, this.camera.x + this.width + tileSize);
+    const endY = Math.min(mapExtent, this.camera.y + this.height + tileSize);
+    for (let y = startY; y < endY; y += tileSize) {
+      for (let x = startX; x < endX; x += tileSize) {
+        const tx = (Math.floor(x / tileSize) + Math.floor(y / tileSize) * 7) % tilesPerRow;
+        const ty = (Math.floor(y / tileSize) * 3 + Math.floor(x / tileSize) * 11) % tilesPerCol;
         ctx.drawImage(
           plains,
           tx * tileSize, ty * tileSize, tileSize, tileSize,
