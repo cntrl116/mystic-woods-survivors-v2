@@ -2,16 +2,17 @@ const Enemy = {
   list: [],
   xpGems: [],
 
-  create(x, y, difficulty) {
+  create(x, y, difficulty, type) {
+    type = type || 'slime';
     const hpMul = 1 + difficulty * 0.15;
     return {
-      x, y,
+      x, y, type,
       hp: Math.ceil(2 * hpMul),
       maxHp: Math.ceil(2 * hpMul),
       speed: 55 + Math.random() * 10,
       xp: 1 + Math.floor(difficulty / 3),
-      width: 32,
-      height: 32,
+      width: type === 'bat' ? 16 : 32,
+      height: type === 'bat' ? 24 : 32,
       dir: 0,
       animFrame: 0,
       animTimer: 0,
@@ -75,38 +76,61 @@ const Enemy = {
   },
 
   renderAll(ctx) {
+    for (const e of this.list) {
+      if (e.type === 'bat') {
+        this._renderBat(ctx, e);
+      } else {
+        this._renderSlime(ctx, e);
+      }
+    }
+  },
+
+  _renderSlime(ctx, e) {
     const sprite = Game.sprites.slime;
     if (!sprite || sprite.width === 0) {
-      for (const e of this.list) {
-        ctx.fillStyle = '#0a8';
-        ctx.fillRect(e.x - 12, e.y - 12, 24, 24);
-      }
+      ctx.fillStyle = '#0a8';
+      ctx.fillRect(e.x - 12, e.y - 12, 24, 24);
       return;
     }
     const gs = 32;
-    for (const e of this.list) {
-      let row, flipped = false;
-      if (!e.alive) {
-        row = 12;
-      } else {
-        switch (e.dir) {
-          case 0: row = 5; break;
-          case 1: row = 4; flipped = true; break;
-          case 2: row = 4; break;
-          case 3: row = 6; break;
-          default: row = 0;
-        }
+    let row, flipped = false;
+    if (!e.alive) {
+      row = 12;
+    } else {
+      switch (e.dir) {
+        case 0: row = 5; break;
+        case 1: row = 4; flipped = true; break;
+        case 2: row = 4; break;
+        case 3: row = 6; break;
+        default: row = 0;
       }
-      const col = e.animFrame;
-      ctx.save();
-      if (flipped) {
-        ctx.translate(e.x, e.y);
-        ctx.scale(-1, 1);
-        ctx.drawImage(sprite, col * gs, row * gs, gs, gs, -gs / 2, -gs / 2, gs, gs);
-      } else {
-        ctx.drawImage(sprite, col * gs, row * gs, gs, gs, e.x - gs / 2, e.y - gs / 2, gs, gs);
-      }
-      ctx.restore();
     }
+    const col = e.animFrame;
+    ctx.save();
+    if (flipped) {
+      ctx.translate(e.x, e.y);
+      ctx.scale(-1, 1);
+      ctx.drawImage(sprite, col * gs, row * gs, gs, gs, -gs / 2, -gs / 2, gs, gs);
+    } else {
+      ctx.drawImage(sprite, col * gs, row * gs, gs, gs, e.x - gs / 2, e.y - gs / 2, gs, gs);
+    }
+    ctx.restore();
+  },
+
+  _renderBat(ctx, e) {
+    const sprite = Game.sprites.bat;
+    if (!sprite || sprite.width === 0) {
+      ctx.fillStyle = '#a0a';
+      ctx.fillRect(e.x - 8, e.y - 12, 16, 24);
+      return;
+    }
+    const fw = 16, fh = 24;
+    var row = e.alive ? 0 : 2;
+    var col = e.alive ? e.animFrame : 0;
+    ctx.save();
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(sprite, col * fw, row * fh, fw, fh, e.x - fw / 2, e.y - fh / 2, fw, fh);
+    ctx.imageSmoothingEnabled = true;
+    ctx.restore();
   },
 };

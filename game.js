@@ -34,6 +34,7 @@ const Game = {
       plains: 'assets/sprites/tilesets/grass.png',
       player: 'assets/sprites/characters/player.png',
       slime: 'assets/sprites/characters/slime.png',
+      bat: 'assets/sprites/characters/bat.png',
       crystalsword: 'assets/sprites/weapons/weapon01crystalsword.png',
       dagger: 'assets/sprites/weapons/weapon02dagger.png',
       longsword: 'assets/sprites/weapons/weapon03longsword.png',

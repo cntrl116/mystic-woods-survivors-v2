@@ -41,7 +41,8 @@ const Spawner = {
         y = cam.y + Math.random() * h;
       }
       const difficulty = Math.floor(this.elapsedTime / 8);
-      Enemy.list.push(Enemy.create(x, y, difficulty));
+      var type = Math.random() < 0.5 ? 'slime' : 'bat';
+      Enemy.list.push(Enemy.create(x, y, difficulty, type));
     }
   },
 };
