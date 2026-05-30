@@ -15,7 +15,7 @@ const Player = {
   speed: 1,
   duration: 1,
   amount: 0,
-  luck: 1,
+
   magnet: 0,
   growth: 1,
   xpDiscount: 0,

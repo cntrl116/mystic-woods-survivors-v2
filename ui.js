@@ -124,7 +124,6 @@ const UI = {
       duration:  'Длительность +15%',
       amount:    'Количество +1',
       magnet:    'Магнит +20',
-      luck:      'Удача +10%',
       growth:    'Рост +10%',
     };
 
@@ -166,7 +165,7 @@ const UI = {
     for (var key in WEAPON_FACTORIES) {
       if (key === 'holyMissile' || key === 'bloodyTear' || key === 'deathSpiral' ||
           key === 'thousandEdge' || key === 'hellfire' || key === 'bora' ||
-          key === 'loop' || key === 'unholyVespers' || key === 'stigraGatti') continue;
+          key === 'loop' || key === 'unholyVespers') continue;
       if (!WeaponManager.hasWeapon(key)) {
         var def = WEAPON_FACTORIES[key]();
         pool.push({ type: 'weaponNew', id: key, name: def.nameRu, icon: '\u2694', desc: 'Новое оружие', _sprite: WEAPON_SPRITE_MAP[key] });

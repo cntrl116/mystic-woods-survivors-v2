@@ -44,7 +44,7 @@ var WEAPON_SPRITE_MAP = {
   lightning: null,
   holyWater: null,
   bible: 'longsword',
-  birds: null,
+
   whip: 'flail',
   holyMissile: 'bow',
   bloodyTear: 'flail',
@@ -54,7 +54,7 @@ var WEAPON_SPRITE_MAP = {
   bora: null,
   loop: null,
   unholyVespers: null,
-  stigraGatti: null,
+
 };
 
 function getSpawnPos() {
@@ -371,38 +371,7 @@ WEAPON_FACTORIES.bible = function() {
   });
 };
 
-WEAPON_FACTORIES.birds = function() {
-  return createWeapon({
-    id: 'birds', name: 'Gatti Amari', nameRu: 'Гатти Амари',
-    base: { power: 1, interval: 5000, area: 1, speed: 0.4, amount: 1, duration: 5000 },
-    bonuses: [
-      { speed: 0.2 }, { duration: 1500 }, { speed: 0.2 },
-      { amount: 1 }, { duration: 1500 }, { speed: 0.2 }, { amount: 1 },
-    ],
-    evoSynergy: 'LUCK', evoId: 'stigraGatti',
-    attack: function() {
-      var range = 400 * Player.area;
-      var dmg = Math.ceil(10 * this.getStat('power') * Player.power) + WeaponManager.globalDamage;
-      var amt = this.getStat('amount') + Player.amount;
-      for (var bi = 0; bi < amt; bi++) {
-        var target = findClosestEnemy(Player.x, Player.y, range);
-        if (!target) break;
-        var spd = 400 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 40;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 40;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist === 0) continue;
-        WeaponManager.addProjectile({
-          type: 'homing',
-          x: Player.x, y: Player.y,
-          vx: (dx / dist) * spd, vy: (dy / dist) * spd,
-          damage: dmg, maxDist: range, distTraveled: 0,
-          seek: 200, maxSpeed: 450 * Player.speed,
-        });
-      }
-    },
-  });
-};
+
 
 WEAPON_FACTORIES.whip = function() {
   return createWeapon({
@@ -655,34 +624,7 @@ WEAPON_FACTORIES.unholyVespers = function() {
   });
 };
 
-WEAPON_FACTORIES.stigraGatti = function() {
-  return createWeapon({
-    id: 'stigraGatti', name: 'Stigma Gatti', nameRu: 'Стигма Гатти',
-    base: { power: 2, interval: 4000, area: 1, speed: 0.6, amount: 3, duration: 6000 },
-    bonuses: [],
-    attack: function() {
-      var range = 450 * Player.area;
-      var dmg = Math.ceil(10 * this.getStat('power') * Player.power) + WeaponManager.globalDamage;
-      var amt = this.getStat('amount') + Player.amount;
-      for (var bi = 0; bi < amt; bi++) {
-        var target = findClosestEnemy(Player.x, Player.y, range);
-        if (!target) break;
-        var spd = 500 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 30;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 30;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist === 0) continue;
-        WeaponManager.addProjectile({
-          type: 'homing',
-          x: Player.x, y: Player.y,
-          vx: (dx / dist) * spd, vy: (dy / dist) * spd,
-          damage: dmg, maxDist: range, distTraveled: 0,
-          seek: 300, maxSpeed: 550 * Player.speed,
-        });
-      }
-    },
-  });
-};
+
 
 // ===== Weapon Manager =====
 

@@ -187,7 +187,7 @@ const Game = {
     Player.speed = 1;
     Player.duration = 1;
     Player.amount = 0;
-    Player.luck = 1;
+
     Player.magnet = 0;
     Player.growth = 1;
     Player.xpDiscount = 0;
