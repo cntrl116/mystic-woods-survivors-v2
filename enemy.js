@@ -1,5 +1,6 @@
 const Enemy = {
   list: [],
+  xpGems: [],
   spawnTimer: 0,
   spawnInterval: 3,
   totalSpawned: 0,
@@ -51,11 +52,25 @@ const Enemy = {
     this.totalSpawned += count;
   },
 
+  spawnXpGem(x, y, value) {
+    this.xpGems.push({ x, y, value, size: 6, bob: 0 });
+  },
+
   updateAll(dt) {
     this.spawnTimer += dt;
     if (this.spawnTimer >= this.spawnInterval) {
       this.spawnTimer = 0;
       this.spawnWave();
+    }
+    for (let i = this.xpGems.length - 1; i >= 0; i--) {
+      const g = this.xpGems[i];
+      g.bob += dt * 3;
+      const dx = Player.x - g.x;
+      const dy = Player.y - g.y;
+      if (dx * dx + dy * dy < 900) {
+        Player.addXp(g.value);
+        this.xpGems.splice(i, 1);
+      }
     }
     for (let i = this.list.length - 1; i >= 0; i--) {
       const e = this.list[i];
@@ -75,6 +90,20 @@ const Enemy = {
         e.animFrame = (e.animFrame + 1) % 3;
         e.animTimer = 0;
       }
+    }
+  },
+
+  renderXpGems(ctx) {
+    for (const g of this.xpGems) {
+      const bob = Math.sin(g.bob) * 2;
+      ctx.fillStyle = 'rgba(50, 255, 100, 0.8)';
+      ctx.beginPath();
+      ctx.arc(g.x, g.y + bob, g.size + 1, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(180, 255, 180, 0.6)';
+      ctx.beginPath();
+      ctx.arc(g.x - 1, g.y - 1 + bob, g.size * 0.5, 0, Math.PI * 2);
+      ctx.fill();
     }
   },
 

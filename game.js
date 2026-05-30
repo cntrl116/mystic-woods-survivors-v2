@@ -75,6 +75,7 @@ const Game = {
     Player.update(dt);
     Enemy.updateAll(dt);
     Weapon.update(dt);
+    UI.gameTime += dt;
   },
 
   render() {
@@ -92,8 +93,10 @@ const Game = {
     this.renderMap(ctx);
     Enemy.renderAll(ctx);
     Weapon.renderAll(ctx);
+    Enemy.renderXpGems(ctx);
     Player.render(ctx);
     ctx.restore();
+    UI.render(ctx);
   },
 
   renderMap(ctx) {

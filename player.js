@@ -2,6 +2,12 @@ const Player = {
   x: 1500,
   y: 1500,
   speed: 200,
+  maxHp: 10,
+  hp: 10,
+  xp: 0,
+  xpToNext: 10,
+  level: 1,
+  kills: 0,
   dir: 0,
   animFrame: 0,
   animTimer: 0,
@@ -71,5 +77,25 @@ const Player = {
       ctx.drawImage(sprite, sx, sy, fw, fh, this.x - fw / 2, this.y - fh / 2, fw, fh);
     }
     ctx.restore();
+  },
+
+  addXp(amount) {
+    this.xp += amount;
+    if (this.xp >= this.xpToNext) {
+      this.xp -= this.xpToNext;
+      this.level++;
+      this.xpToNext = Math.floor(this.xpToNext * 1.4);
+      Game.state = 'LEVELING';
+      UI.showUpgrades();
+    }
+  },
+
+  takeDamage(amount) {
+    this.hp -= amount;
+    if (this.hp <= 0) {
+      this.hp = 0;
+      Game.state = 'GAME_OVER';
+      UI.showGameOver();
+    }
   },
 };
