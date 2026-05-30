@@ -94,8 +94,9 @@ const Game = {
     ctx.translate(Math.round(-this.camera.x), Math.round(-this.camera.y));
     this.renderMap(ctx);
     Enemy.renderAll(ctx);
-    Player.render(ctx);
     Weapon.renderAll(ctx);
+    Enemy.renderXpGems(ctx);
+    Player.render(ctx);
     ctx.restore();
     UI.render(ctx);
   },

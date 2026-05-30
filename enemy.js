@@ -59,6 +59,18 @@ const Enemy = {
       this.spawnTimer = 0;
       this.spawnWave();
     }
+    const gems = this.xpGems || [];
+    for (let i = gems.length - 1; i >= 0; i--) {
+      const g = gems[i];
+      g.bob = (g.bob || 0) + dt * 3;
+      const dx = Player.x - g.x;
+      const dy = Player.y - g.y;
+      const dist = Math.sqrt(dx * dx + dy * dy);
+      if (dist < 30) {
+        Player.addXp(g.value);
+        gems.splice(i, 1);
+      }
+    }
     for (let i = this.list.length - 1; i >= 0; i--) {
       const e = this.list[i];
       if (!e.alive) {
@@ -78,6 +90,21 @@ const Enemy = {
         e.animFrame = (e.animFrame + 1) % 3;
         e.animTimer = 0;
       }
+    }
+  },
+
+  renderXpGems(ctx) {
+    const gems = this.xpGems || [];
+    for (const g of gems) {
+      const alpha = 0.6 + Math.sin(g.bob || 0) * 0.3;
+      ctx.fillStyle = `rgba(50, 255, 100, ${alpha})`;
+      ctx.beginPath();
+      ctx.arc(g.x, g.y, g.size, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(200, 255, 200, 0.5)';
+      ctx.beginPath();
+      ctx.arc(g.x - 1, g.y - 1, g.size * 0.4, 0, Math.PI * 2);
+      ctx.fill();
     }
   },
 
