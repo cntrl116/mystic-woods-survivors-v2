@@ -262,48 +262,33 @@ const Game = {
     const ts = this.GRASS_TS;
     const gCols = this.GRASS_COLS;
     const ms = this.mapSize;
-    const numTiles = ms / ts;
-    const sx = Math.floor(this.camera.x / ts) * ts;
-    const sy = Math.floor(this.camera.y / ts) * ts;
-    const ex = this.camera.x + this.width + ts;
-    const ey = this.camera.y + this.height + ts;
+    const numTiles = Math.floor(ms / ts);
+    const sx = Math.max(0, Math.floor(this.camera.x / ts) * ts);
+    const sy = Math.max(0, Math.floor(this.camera.y / ts) * ts);
+    const ex = Math.min(ms, this.camera.x + this.width + ts);
+    const ey = Math.min(ms, this.camera.y + this.height + ts);
 
-    // Draw varied grass tiles (wrapping at map edges)
     for (let y = sy; y < ey; y += ts) {
       for (let x = sx; x < ex; x += ts) {
-        var worldX = ((x % ms) + ms) % ms;
-        var worldY = ((y % ms) + ms) % ms;
-        var tileX = Math.floor(worldX / ts);
-        var tileY = Math.floor(worldY / ts);
-        // Use wrapped tile indices so grass pattern repeats across boundary
-        var wrappedTileX = ((tileX % numTiles) + numTiles) % numTiles;
-        var wrappedTileY = ((tileY % numTiles) + numTiles) % numTiles;
-        var h = this.hash(wrappedTileX, wrappedTileY);
+        var tileX = Math.floor(x / ts);
+        var tileY = Math.floor(y / ts);
+        var h = this.hash(tileX, tileY);
         var gx = (h % gCols) * ts;
         var gy = (Math.floor(h / gCols) % this.GRASS_ROWS) * ts;
-        ctx.drawImage(grass, gx, gy, ts, ts, worldX, worldY, ts, ts);
+        ctx.drawImage(grass, gx, gy, ts, ts, x, y, ts, ts);
       }
     }
 
-    // Draw decorations with wrapping
     var cx = this.camera.x;
     var cy = this.camera.y;
     var cw = this.width;
     var ch = this.height;
     for (var i = 0; i < this.decorations.length; i++) {
       var d = this.decorations[i];
-      // Try rendering decoration at up to 4 wrapped positions
-      var offsets = [0, -ms, ms];
-      for (var ox = 0; ox < offsets.length; ox++) {
-        for (var oy = 0; oy < offsets.length; oy++) {
-          var dx = d.x + offsets[ox];
-          var dy = d.y + offsets[oy];
-          if (dx + d.def.w < cx || dx > cx + cw || dy + d.def.h < cy || dy > cy + ch) continue;
-          var sprite = this.sprites[d.def.key];
-          if (!sprite || sprite.width === 0) continue;
-          ctx.drawImage(sprite, d.def.sx, d.def.sy, d.def.w, d.def.h, dx, dy, d.def.w, d.def.h);
-        }
-      }
+      if (d.x + d.def.w < cx || d.x > cx + cw || d.y + d.def.h < cy || d.y > cy + ch) continue;
+      var sprite = this.sprites[d.def.key];
+      if (!sprite || sprite.width === 0) continue;
+      ctx.drawImage(sprite, d.def.sx, d.def.sy, d.def.w, d.def.h, d.x, d.y, d.def.w, d.def.h);
     }
   },
 };
