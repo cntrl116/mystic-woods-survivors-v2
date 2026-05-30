@@ -682,7 +682,7 @@ var WeaponManager = {
     this.vfx = [];
     this.zones = [];
     this.globalDamage = 0;
-    this.addWeapon('magicArrow');
+    this.addWeapon('throwingKnife');
   },
 
   hasWeapon: function(id) {
@@ -957,7 +957,13 @@ var WeaponManager = {
     if (sprite && sprite.width > 0) {
       var sz = 24;
       ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(sprite, p.x - sz / 2, p.y - sz / 2, sz, sz);
+      ctx.save();
+      ctx.translate(p.x, p.y);
+      if (p.type === 'piercing' && (p.vx !== undefined || p.vy !== undefined)) {
+        ctx.rotate(Math.atan2(p.vy || 0, p.vx || 1));
+      }
+      ctx.drawImage(sprite, -sz / 2, -sz / 2, sz, sz);
+      ctx.restore();
       ctx.imageSmoothingEnabled = true;
       return true;
     }
