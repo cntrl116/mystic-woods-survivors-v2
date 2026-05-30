@@ -5,7 +5,7 @@ const Game = {
   height: 0,
   camera: { x: 0, y: 0 },
   mapSize: 3000,
-  state: 'LOADING',
+  state: 'PLAYING',
   sprites: {},
   lastTime: 0,
   accumulator: 0,
@@ -29,25 +29,15 @@ const Game = {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   },
 
-  loadAssets(callback) {
+  loadAssets() {
     const assets = {
       plains: 'assets/sprites/tilesets/plains.png',
       player: 'assets/sprites/characters/player.png',
       skeleton: 'assets/sprites/characters/skeleton.png',
       slime: 'assets/sprites/characters/slime.png',
     };
-    let loaded = 0;
-    const total = Object.keys(assets).length;
     for (const [key, src] of Object.entries(assets)) {
       const img = new Image();
-      img.onload = () => {
-        loaded++;
-        if (loaded >= total) callback();
-      };
-      img.onerror = () => {
-        loaded++;
-        if (loaded >= total) callback();
-      };
       img.src = src;
       this.sprites[key] = img;
     }
@@ -114,13 +104,6 @@ const Game = {
   render() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
-    if (this.state === 'LOADING') {
-      ctx.fillStyle = '#fff';
-      ctx.font = '24px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('Loading...', this.width / 2, this.height / 2);
-      return;
-    }
     ctx.save();
     ctx.translate(-this.camera.x, -this.camera.y);
     this.renderMap(ctx);
