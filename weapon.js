@@ -29,7 +29,7 @@ const Weapon = {
         const threshold = e.type === 'slime' ? 20 : 24;
         if (dx * dx + dy * dy < threshold * threshold) {
           e.hp -= this.damage;
-          if (e.hp <= 0) { e.alive = false; Enemy.spawnXpGem(e.x, e.y, e.xp); }
+          if (e.hp <= 0) { e.alive = false; Player.kills++; Enemy.spawnXpGem(e.x, e.y, e.xp); }
           hit = true;
           break;
         }

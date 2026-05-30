@@ -70,12 +70,45 @@ const Game = {
     requestAnimationFrame((t) => this.loop(t));
   },
 
+  reset() {
+    Player.hp = Player.maxHp;
+    Player.xp = 0;
+    Player.level = 1;
+    Player.kills = 0;
+    Player.xpToNext = 10;
+    Player.speed = 200;
+    Player.maxHp = 10;
+    Player.x = 1500;
+    Player.y = 1500;
+    Weapon.damage = 1;
+    Weapon.fireInterval = 0.8;
+    Weapon.range = 400;
+    Enemy.list = [];
+    Enemy.xpGems = [];
+    Enemy.spawnTimer = 0;
+    Enemy.totalSpawned = 0;
+    Weapon.projectiles = [];
+    Weapon.fireTimer = 0;
+    UI.reset();
+    this.state = 'PLAYING';
+  },
+
   update(dt) {
     if (this.state !== 'PLAYING') return;
     Player.update(dt);
     Enemy.updateAll(dt);
     Weapon.update(dt);
     UI.gameTime += dt;
+    for (const e of Enemy.list) {
+      if (!e.alive) continue;
+      const dx = Player.x - e.x;
+      const dy = Player.y - e.y;
+      const threshold = e.type === 'slime' ? 16 : 20;
+      if (dx * dx + dy * dy < threshold * threshold) {
+        Player.takeDamage(1);
+        e.alive = false;
+      }
+    }
   },
 
   render() {

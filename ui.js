@@ -84,5 +84,22 @@ const UI = {
     }
   },
 
-  showGameOver() {},
+  showGameOver() {
+    const overlay = document.getElementById('upgradeOverlay');
+    if (!overlay) return;
+    const mins = Math.floor(this.gameTime / 60);
+    const secs = Math.floor(this.gameTime % 60);
+    overlay.innerHTML = `<div class="gameover-title">GAME OVER</div>
+      <div class="gameover-stats">
+        <div>Survived: ${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}</div>
+        <div>Kills: ${Player.kills}</div>
+        <div>Level: ${Player.level}</div>
+      </div>
+      <button class="restart-btn" id="restartBtn">RESTART</button>`;
+    overlay.style.display = 'flex';
+    document.getElementById('restartBtn').addEventListener('click', () => {
+      overlay.style.display = 'none';
+      Game.reset();
+    });
+  },
 };
