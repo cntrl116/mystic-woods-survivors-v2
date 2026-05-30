@@ -31,7 +31,7 @@ const Game = {
 
   loadAssets() {
     const assets = {
-      plains: 'assets/sprites/tilesets/grass.png',
+      plains: 'assets/sprites/tilesets/grass_new.png',
       player: 'assets/sprites/characters/player.png',
       slime: 'assets/sprites/characters/slime.png',
       bat: 'assets/sprites/characters/bat.png',
@@ -156,7 +156,7 @@ const Game = {
   renderMap(ctx) {
     const grass = this.sprites.plains;
     if (!grass || grass.width === 0) return;
-    const ts = 16;
+    const ts = 32;
     const sx = Math.max(0, Math.floor(this.camera.x / ts) * ts);
     const sy = Math.max(0, Math.floor(this.camera.y / ts) * ts);
     const ex = Math.min(this.mapSize, this.camera.x + this.width + ts);
