@@ -1,7 +1,7 @@
 const Spawner = {
   elapsedTime: 0,
   timer: 0,
-  baseInterval: 2.0,
+  baseInterval: 0.8,
   minInterval: 0.4,
   decreaseRate: 0.01,
   groupBase: 1,
