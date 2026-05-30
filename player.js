@@ -1,7 +1,6 @@
 const Player = {
   x: 1000,
   y: 1000,
-  speed: 200,
   width: 48,
   height: 48,
   dir: 0,
@@ -47,8 +46,8 @@ const Player = {
       const len = Math.sqrt(dx * dx + dy * dy);
       dx /= len;
       dy /= len;
-      this.x += dx * this.speed * dt;
-      this.y += dy * this.speed * dt;
+      this.x += dx * this.stats.speed * dt;
+      this.y += dy * this.stats.speed * dt;
       const ms = Game.mapSize;
       this.x = Math.max(24, Math.min(ms - 24, this.x));
       this.y = Math.max(24, Math.min(ms - 24, this.y));

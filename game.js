@@ -74,20 +74,20 @@ const Game = {
   },
 
   reset() {
-    Player.x = 1000;
-    Player.y = 1000;
-    Player.hp = Player.maxHp;
-    Player.xp = 0;
-    Player.level = 1;
-    Player.kills = 0;
-    Player.xpToNext = 10;
     Player.stats.damage = 1;
     Player.stats.attackSpeed = 0.8;
     Player.stats.range = 400;
     Player.stats.projectileCount = 1;
     Player.stats.speed = 200;
     Player.stats.maxHp = 10;
-    Player.maxHp = 10;
+    Player.maxHp = Player.stats.maxHp;
+    Player.hp = Player.maxHp;
+    Player.xp = 0;
+    Player.level = 1;
+    Player.kills = 0;
+    Player.xpToNext = 10;
+    Player.x = 1000;
+    Player.y = 1000;
     Enemy.list = [];
     Enemy.xpGems = [];
     Enemy.spawnTimer = 0;

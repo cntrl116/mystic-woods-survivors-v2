@@ -2,21 +2,24 @@ const Enemy = {
   list: [],
   spawnTimer: 0,
   spawnInterval: 3,
-  baseSpeed: 60,
-  baseHp: 3,
   totalSpawned: 0,
+  xpGems: [],
+  difficultyTimer: 0,
 
-  create(x, y, type) {
-    const stats = type === 'slime'
-      ? { hp: 2, speed: 50, width: 32, height: 32 }
-      : { hp: 4, speed: 60, width: 48, height: 48 };
+  create(x, y, type, difficulty) {
+    const base = type === 'slime'
+      ? { hp: 2, speed: 55, width: 32, height: 32, xp: 1 }
+      : { hp: 4, speed: 65, width: 48, height: 48, xp: 2 };
+    const hpMul = 1 + difficulty * 0.15;
+    const spdMul = 1 + difficulty * 0.05;
     return {
       x, y, type,
-      hp: stats.hp,
-      maxHp: stats.hp,
-      speed: stats.speed + Math.random() * 15,
-      width: stats.width,
-      height: stats.height,
+      hp: Math.ceil(base.hp * hpMul),
+      maxHp: Math.ceil(base.hp * hpMul),
+      speed: base.speed * spdMul + Math.random() * 10,
+      xp: base.xp + Math.floor(difficulty / 3),
+      width: base.width,
+      height: base.height,
       animFrame: 0,
       animTimer: 0,
       alive: true,
@@ -25,7 +28,8 @@ const Enemy = {
   },
 
   spawnWave() {
-    const count = 3 + Math.floor(this.totalSpawned / 10);
+    const difficulty = Math.floor(this.totalSpawned / 8);
+    const count = 3 + difficulty;
     for (let i = 0; i < count; i++) {
       let x, y;
       const side = Math.floor(Math.random() * 4);
@@ -47,26 +51,27 @@ const Enemy = {
         x = cam.x - margin - Math.random() * spread;
         y = cam.y + Math.random() * h;
       }
-      const type = Math.random() < 0.4 ? 'slime' : 'skeleton';
-      this.list.push(this.create(x, y, type));
+      const type = Math.random() < 0.35 ? 'slime' : 'skeleton';
+      this.list.push(this.create(x, y, type, difficulty));
     }
     this.totalSpawned += count;
+    this.spawnInterval = Math.max(0.8, 3 - difficulty * 0.15);
   },
 
   updateAll(dt) {
+    this.difficultyTimer += dt;
     this.spawnTimer += dt;
     if (this.spawnTimer >= this.spawnInterval) {
       this.spawnTimer = 0;
       this.spawnWave();
     }
-    const gems = this.xpGems || [];
+    const gems = this.xpGems;
     for (let i = gems.length - 1; i >= 0; i--) {
       const g = gems[i];
       g.bob = (g.bob || 0) + dt * 3;
       const dx = Player.x - g.x;
       const dy = Player.y - g.y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < 30) {
+      if (dx * dx + dy * dy < 900) {
         Player.addXp(g.value);
         gems.splice(i, 1);
       }
@@ -84,7 +89,6 @@ const Enemy = {
         e.x += (dx / dist) * e.speed * dt;
         e.y += (dy / dist) * e.speed * dt;
       }
-      e.hitTimer -= dt;
       e.animTimer += dt;
       if (e.animTimer > 0.15) {
         e.animFrame = (e.animFrame + 1) % 3;
@@ -94,16 +98,15 @@ const Enemy = {
   },
 
   renderXpGems(ctx) {
-    const gems = this.xpGems || [];
-    for (const g of gems) {
-      const alpha = 0.6 + Math.sin(g.bob || 0) * 0.3;
-      ctx.fillStyle = `rgba(50, 255, 100, ${alpha})`;
+    for (const g of this.xpGems) {
+      const bob = Math.sin(g.bob || 0) * 2;
+      ctx.fillStyle = `rgba(50, 255, 100, 0.8)`;
       ctx.beginPath();
-      ctx.arc(g.x, g.y, g.size, 0, Math.PI * 2);
+      ctx.arc(g.x, g.y + bob, g.size + 1, 0, Math.PI * 2);
       ctx.fill();
-      ctx.fillStyle = 'rgba(200, 255, 200, 0.5)';
+      ctx.fillStyle = 'rgba(180, 255, 180, 0.6)';
       ctx.beginPath();
-      ctx.arc(g.x - 1, g.y - 1, g.size * 0.4, 0, Math.PI * 2);
+      ctx.arc(g.x - 1, g.y - 1 + bob, g.size * 0.5, 0, Math.PI * 2);
       ctx.fill();
     }
   },
@@ -120,8 +123,7 @@ const Enemy = {
       }
       const fw = e.width, fh = e.height;
       const gridSize = e.type === 'slime' ? 32 : 48;
-      const rowOffset = 3;
-      const sy = (rowOffset + e.animFrame) * gridSize;
+      const sy = (3 + e.animFrame) * gridSize;
       const sx = 2 * gridSize;
       ctx.drawImage(
         sprite, sx, sy, gridSize, gridSize,
