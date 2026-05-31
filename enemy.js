@@ -4,7 +4,7 @@ const Enemy = {
 
   createBoss: function(x, y) {
     return {
-      x: Game.wrap(x), y: Game.wrap(y), type: 'boss', isBoss: true,
+      x: x, y: y, type: 'boss', isBoss: true,
       hp: 80, maxHp: 80,
       speed: 40,
       xp: 20,
@@ -33,7 +33,7 @@ const Enemy = {
   },
 
   spawnXpGem(x, y, value) {
-    this.xpGems.push({ x: Game.wrap(x), y: Game.wrap(y), value, size: 6, bob: 0 });
+    this.xpGems.push({ x: x, y: y, value, size: 6, bob: 0 });
   },
 
   updateAll(dt) {

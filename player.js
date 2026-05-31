@@ -47,12 +47,10 @@ const Player = {
     this.moving = dx !== 0 || dy !== 0;
     if (this.moving) {
       const len = Math.sqrt(dx * dx + dy * dy);
-      dx /= len;
-      dy /= len;
-      this.x += dx * 200 * this.moveSpeed * dt;
-      this.y += dy * 200 * this.moveSpeed * dt;
-      this.x = Game.wrap(this.x);
-      this.y = Game.wrap(this.y);
+       dx /= len;
+       dy /= len;
+       this.x += dx * 200 * this.moveSpeed * dt;
+       this.y += dy * 200 * this.moveSpeed * dt;
       if (dy < 0) this.dir = 0;
       else if (dy > 0) this.dir = 3;
       if (dx > 0) this.dir = 2;
