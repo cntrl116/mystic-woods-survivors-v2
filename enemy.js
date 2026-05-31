@@ -79,8 +79,10 @@ const Enemy = {
       const g = this.xpGems[i];
       if (!g.alive) continue;
       g.bob += dt * 3;
-      const dx = Player.x - g.x;
-      const dy = Player.y - g.y;
+      const ugx = Game.unwrap(g.x, Player.x);
+      const ugy = Game.unwrap(g.y, Player.y);
+      const dx = Player.x - ugx;
+      const dy = Player.y - ugy;
       const distSq = dx * dx + dy * dy;
       var pickupRadius = 150 + Player.magnet;
       if (distSq < pickupRadius * pickupRadius) {
@@ -100,6 +102,8 @@ const Enemy = {
           var speed = 300 + Player.magnet * 0.5;
           g.x += (dx / dist) * speed * dt;
           g.y += (dy / dist) * speed * dt;
+          g.x = Game.wrap(g.x);
+          g.y = Game.wrap(g.y);
         }
       }
     }
@@ -128,8 +132,10 @@ const Enemy = {
         }
         continue;
       }
-      const dx = Player.x - e.x;
-      const dy = Player.y - e.y;
+      const uex = Game.unwrap(e.x, Player.x);
+      const uey = Game.unwrap(e.y, Player.y);
+      const dx = Player.x - uex;
+      const dy = Player.y - uey;
       const dist = Math.sqrt(dx * dx + dy * dy);
       if (dist > 0) {
         e.x += (dx / dist) * e.speed * dt;
@@ -158,7 +164,12 @@ const Enemy = {
 
   renderXpGems(ctx) {
     for (const g of this.xpGems) {
-      const bob = Math.sin(g.bob) * 2;
+      if (!g.alive) continue;
+      var rx = Game.unwrap(g.x, Player.x);
+      var ry = Game.unwrap(g.y, Player.y);
+      var bob = Math.sin(g.bob) * 2;
+      ctx.save();
+      ctx.translate(rx - g.x, ry - g.y);
       ctx.fillStyle = 'rgba(50, 255, 100, 0.8)';
       ctx.beginPath();
       ctx.arc(g.x, g.y + bob, g.size + 1, 0, Math.PI * 2);
@@ -167,6 +178,7 @@ const Enemy = {
       ctx.beginPath();
       ctx.arc(g.x - 1, g.y - 1 + bob, g.size * 0.5, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
     }
     for (var pi = 0; pi < this.pickupParticles.length; pi++) {
       var p = this.pickupParticles[pi];
@@ -180,6 +192,11 @@ const Enemy = {
 
   renderAll(ctx) {
     for (const e of this.list) {
+      if (!e.alive && !e.dying) continue;
+      var rx = Game.unwrap(e.x, Player.x);
+      var ry = Game.unwrap(e.y, Player.y);
+      ctx.save();
+      ctx.translate(rx - e.x, ry - e.y);
       if (e.isBoss) {
         this._renderBoss(ctx, e);
       } else if (e.type === 'bat') {
@@ -187,6 +204,7 @@ const Enemy = {
       } else {
         this._renderSlime(ctx, e);
       }
+      ctx.restore();
     }
   },
 

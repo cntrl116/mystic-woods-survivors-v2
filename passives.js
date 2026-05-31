@@ -26,7 +26,17 @@ var EVOLUTION_MAP = {
 };
 
 var PASSIVE_SPRITE_MAP = {
+  POWER: 'might',
+  ARMOR: 'armor',
+  MAXHEALTH: 'maxHealth',
+  REGEN: 'regen',
   COOLDOWN: 'emptyTome',
+  AREA: 'area',
+  SPEED: 'speed',
+  DURATION: 'duration',
+  AMOUNT: 'amount',
+  MAGNET: 'magnet',
+  GROWTH: 'growth',
 };
 
 var PassiveManager = {

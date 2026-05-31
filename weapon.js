@@ -4,8 +4,10 @@ function findClosestEnemy(x, y, range) {
   for (var i = 0; i < Enemy.list.length; i++) {
     var e = Enemy.list[i];
     if (!e.alive) continue;
-    var dx = e.x - x;
-    var dy = e.y - y;
+    var ux = Game.unwrap(e.x, x);
+    var uy = Game.unwrap(e.y, y);
+    var dx = ux - x;
+    var dy = uy - y;
     var distSq = dx * dx + dy * dy;
     if (distSq < minDist && distSq < range * range) {
       minDist = distSq;
@@ -20,8 +22,10 @@ function forEachEnemyInRadius(x, y, radius, fn) {
   for (var i = 0; i < Enemy.list.length; i++) {
     var e = Enemy.list[i];
     if (!e.alive) continue;
-    var dx = e.x - x;
-    var dy = e.y - y;
+    var ux = Game.unwrap(e.x, x);
+    var uy = Game.unwrap(e.y, y);
+    var dx = ux - x;
+    var dy = uy - y;
     if (dx * dx + dy * dy < r2) fn(e);
   }
 }
@@ -39,23 +43,21 @@ function damageEnemy(e, dmg) {
 
 var WEAPON_SPRITE_MAP = {
   magicArrow: 'magicWand',
-  fireball: 'crystalsword',
+  fireball: 'fireball',
   throwingKnife: 'dagger',
   axe: 'doubleaxe',
   lightning: 'lightning',
   holyWater: 'holyWater',
-  bible: 'emptyTome',
-
-  whip: 'flail',
-  holyMissile: 'bow',
-  bloodyTear: 'flail',
-  deathSpiral: 'doubleaxe',
-  thousandEdge: 'dagger',
-  hellfire: 'crystalsword',
+  bible: 'bible',
+  whip: 'whip',
+  holyMissile: 'holyMissile',
+  bloodyTear: 'bloodyTear',
+  deathSpiral: 'deathSpiral',
+  thousandEdge: 'thousandEdge',
+  hellfire: 'hellfire',
   bora: 'bora',
   loop: 'loop',
   unholyVespers: 'unholyVespers',
-
 };
 
 function getSpawnPos() {
@@ -130,8 +132,10 @@ WEAPON_FACTORIES.magicArrow = function() {
       var amt = this.getStat('amount') + Player.amount;
       for (var ai = 0; ai < amt; ai++) {
         var spd = 500 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 30 * ai;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 30 * ai;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 30 * ai;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 30 * ai;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist === 0) continue;
         WeaponManager.addProjectile({
@@ -162,8 +166,10 @@ WEAPON_FACTORIES.fireball = function() {
       var amt = this.getStat('amount') + Player.amount;
       for (var ai = 0; ai < amt; ai++) {
         var spd = 350 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 50;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 50;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 50;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 50;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist === 0) continue;
         WeaponManager.addProjectile({
@@ -195,8 +201,10 @@ WEAPON_FACTORIES.throwingKnife = function() {
       var amt = this.getStat('amount') + Player.amount;
       for (var ai = 0; ai < amt; ai++) {
         var spd = 600 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 20;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 20;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 20;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 20;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist === 0) continue;
         WeaponManager.addProjectile({
@@ -229,8 +237,10 @@ WEAPON_FACTORIES.axe = function() {
       var amt = this.getStat('amount') + Player.amount;
       for (var ai = 0; ai < amt; ai++) {
         var spd = 300 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 40;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 40;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 40;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 40;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist === 0) continue;
         WeaponManager.addProjectile({
@@ -263,7 +273,9 @@ WEAPON_FACTORIES.lightning = function() {
       var chain = [target];
       var last = target;
       for (var c = 0; c < chains; c++) {
-        var next = findClosestEnemy(last.x, last.y, 100);
+        var lx = Game.unwrap(last.x, Player.x);
+        var ly = Game.unwrap(last.y, Player.y);
+        var next = findClosestEnemy(lx, ly, 100);
         if (next && chain.indexOf(next) === -1) { chain.push(next); last = next; }
         else break;
       }
@@ -289,7 +301,9 @@ WEAPON_FACTORIES.loop = function() {
       var chain = [target];
       var last = target;
       for (var c = 0; c < chains; c++) {
-        var next = findClosestEnemy(last.x, last.y, 120);
+        var lx = Game.unwrap(last.x, Player.x);
+        var ly = Game.unwrap(last.y, Player.y);
+        var next = findClosestEnemy(lx, ly, 120);
         if (next && chain.indexOf(next) === -1) { chain.push(next); last = next; }
         else break;
       }
@@ -315,7 +329,7 @@ WEAPON_FACTORIES.holyWater = function() {
       var range = 200 * Player.area;
       var target = findClosestEnemy(Player.x, Player.y, range);
       var zx, zy;
-      if (target) { zx = target.x; zy = target.y; }
+      if (target) { zx = Game.unwrap(target.x, Player.x); zy = Game.unwrap(target.y, Player.y); }
       else {
         var angle = Math.random() * Math.PI * 2;
         zx = Player.x + Math.cos(angle) * 60;
@@ -401,8 +415,10 @@ WEAPON_FACTORIES.whip = function() {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive) continue;
-          var dx = e.x - Player.x;
-          var dy = e.y - Player.y;
+          var ux = Game.unwrap(e.x, Player.x);
+          var uy = Game.unwrap(e.y, Player.y);
+          var dx = ux - Player.x;
+          var dy = uy - Player.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > range || dist < 10) continue;
           var ea = Math.atan2(dy, dx);
@@ -417,36 +433,6 @@ WEAPON_FACTORIES.whip = function() {
       }
       if (hitAny) {
         WeaponManager.addVfx({ type: 'slash', x: Player.x, y: Player.y, dir: dir, timer: 0, duration: 0.15 });
-      }
-    },
-  });
-};
-
-// ===== Evolved Weapons =====
-
-WEAPON_FACTORIES.holyMissile = function() {
-  return createWeapon({
-    id: 'holyMissile', name: 'Holy Wand', nameRu: 'Святая палочка',
-    base: { power: 3, interval: 500, area: 1, speed: 2, amount: 4, penetrating: 2 },
-    bonuses: [],
-    attack: function() {
-      var range = 500 * Player.area;
-      var target = findClosestEnemy(Player.x, Player.y, range);
-      if (!target) return;
-      var dmg = Math.ceil(10 * this.getStat('power') * Player.power) + WeaponManager.globalDamage;
-      var amt = this.getStat('amount') + Player.amount;
-      for (var ai = 0; ai < amt; ai++) {
-        var spd = 700 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 20;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 20;
-        var dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist === 0) continue;
-        WeaponManager.addProjectile({
-          type: 'standard', trail: true,
-          x: Player.x, y: Player.y,
-          vx: (dx / dist) * spd, vy: (dy / dist) * spd,
-          damage: dmg, maxDist: range, distTraveled: 0,
-        });
       }
     },
   });
@@ -473,8 +459,10 @@ WEAPON_FACTORIES.bloodyTear = function() {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive) continue;
-          var dx = e.x - Player.x;
-          var dy = e.y - Player.y;
+          var ux = Game.unwrap(e.x, Player.x);
+          var uy = Game.unwrap(e.y, Player.y);
+          var dx = ux - Player.x;
+          var dy = uy - Player.y;
           var dist = Math.sqrt(dx * dx + dy * dy);
           if (dist > range || dist < 10) continue;
           var ea = Math.atan2(dy, dx);
@@ -490,6 +478,38 @@ WEAPON_FACTORIES.bloodyTear = function() {
       }
       if (hitAny) {
         WeaponManager.addVfx({ type: 'slash', x: Player.x, y: Player.y, dir: dir, timer: 0, duration: 0.15 });
+      }
+    },
+  });
+};
+
+// ===== Evolved Weapons =====
+
+WEAPON_FACTORIES.holyMissile = function() {
+  return createWeapon({
+    id: 'holyMissile', name: 'Holy Wand', nameRu: 'Святая палочка',
+    base: { power: 3, interval: 500, area: 1, speed: 2, amount: 4, penetrating: 2 },
+    bonuses: [],
+    attack: function() {
+      var range = 500 * Player.area;
+      var target = findClosestEnemy(Player.x, Player.y, range);
+      if (!target) return;
+      var dmg = Math.ceil(10 * this.getStat('power') * Player.power) + WeaponManager.globalDamage;
+      var amt = this.getStat('amount') + Player.amount;
+      for (var ai = 0; ai < amt; ai++) {
+        var spd = 700 * Player.speed;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 20;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 20;
+        var dist = Math.sqrt(dx * dx + dy * dy);
+        if (dist === 0) continue;
+        WeaponManager.addProjectile({
+          type: 'standard', trail: true,
+          x: Player.x, y: Player.y,
+          vx: (dx / dist) * spd, vy: (dy / dist) * spd,
+          damage: dmg, maxDist: range, distTraveled: 0,
+        });
       }
     },
   });
@@ -556,8 +576,10 @@ WEAPON_FACTORIES.hellfire = function() {
         var target = findClosestEnemy(Player.x, Player.y, range);
         if (!target) break;
         var spd = 400 * Player.speed;
-        var dx = target.x - Player.x + (Math.random() - 0.5) * 60;
-        var dy = target.y - Player.y + (Math.random() - 0.5) * 60;
+        var tx = Game.unwrap(target.x, Player.x);
+        var ty = Game.unwrap(target.y, Player.y);
+        var dx = tx - Player.x + (Math.random() - 0.5) * 60;
+        var dy = ty - Player.y + (Math.random() - 0.5) * 60;
         var dist = Math.sqrt(dx * dx + dy * dy);
         if (dist === 0) continue;
         WeaponManager.addProjectile({
@@ -766,8 +788,10 @@ var WeaponManager = {
           for (var ei = 0; ei < Enemy.list.length; ei++) {
             var e = Enemy.list[ei];
             if (!e.alive) continue;
-            var dx = p.x - e.x;
-            var dy = p.y - e.y;
+            var uex = Game.unwrap(e.x, p.x);
+            var uey = Game.unwrap(e.y, p.y);
+            var dx = p.x - uex;
+            var dy = p.y - uey;
             if (dx * dx + dy * dy < 22 * 22) {
               damageEnemy(e, p.damage);
               p.hitTimer = 0.3;
@@ -784,8 +808,8 @@ var WeaponManager = {
         if (p.distTraveled >= p.maxDist) { p.alive = false; continue; }
         var target = findClosestEnemy(p.x, p.y, 250);
         if (target) {
-          var tdx = target.x - p.x;
-          var tdy = target.y - p.y;
+          var tdx = Game.unwrap(target.x, p.x) - p.x;
+          var tdy = Game.unwrap(target.y, p.y) - p.y;
           var td = Math.sqrt(tdx * tdx + tdy * tdy);
           if (td > 0) {
             p.vx += (tdx / td) * p.seek * dt;
@@ -797,8 +821,10 @@ var WeaponManager = {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive) continue;
-          var dx = p.x - e.x;
-          var dy = p.y - e.y;
+          var uex = Game.unwrap(e.x, p.x);
+          var uey = Game.unwrap(e.y, p.y);
+          var dx = p.x - uex;
+          var dy = p.y - uey;
           if (dx * dx + dy * dy < 18 * 18) {
             damageEnemy(e, p.damage);
             p.alive = false;
@@ -834,8 +860,10 @@ var WeaponManager = {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive) continue;
-          var dx = p.x - e.x;
-          var dy = p.y - e.y;
+          var uex = Game.unwrap(e.x, p.x);
+          var uey = Game.unwrap(e.y, p.y);
+          var dx = p.x - uex;
+          var dy = p.y - uey;
           if (dx * dx + dy * dy < 20 * 20) {
             damageEnemy(e, p.damage);
           }
@@ -856,8 +884,10 @@ var WeaponManager = {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive || p.hitEnemies.indexOf(e) !== -1) continue;
-          var dx = p.x - e.x;
-          var dy = p.y - e.y;
+          var uex = Game.unwrap(e.x, p.x);
+          var uey = Game.unwrap(e.y, p.y);
+          var dx = p.x - uex;
+          var dy = p.y - uey;
           if (dx * dx + dy * dy < 18 * 18) {
             damageEnemy(e, p.damage);
             p.hitEnemies.push(e);
@@ -873,8 +903,10 @@ var WeaponManager = {
         for (var ei = 0; ei < Enemy.list.length; ei++) {
           var e = Enemy.list[ei];
           if (!e.alive) continue;
-          var dx = p.x - e.x;
-          var dy = p.y - e.y;
+          var uex = Game.unwrap(e.x, p.x);
+          var uey = Game.unwrap(e.y, p.y);
+          var dx = p.x - uex;
+          var dy = p.y - uey;
           if (dx * dx + dy * dy < 20 * 20) {
             damageEnemy(e, p.damage);
             this._explode(p.x, p.y, p.explosionRadius, Math.ceil(p.damage * 0.5));
@@ -889,8 +921,10 @@ var WeaponManager = {
       for (var ei = 0; ei < Enemy.list.length; ei++) {
         var e = Enemy.list[ei];
         if (!e.alive) continue;
-        var dx = p.x - e.x;
-        var dy = p.y - e.y;
+        var uex = Game.unwrap(e.x, p.x);
+        var uey = Game.unwrap(e.y, p.y);
+        var dx = p.x - uex;
+        var dy = p.y - uey;
         if (dx * dx + dy * dy < 18 * 18) {
           damageEnemy(e, p.damage);
           p.alive = false;

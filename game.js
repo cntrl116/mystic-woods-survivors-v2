@@ -119,6 +119,24 @@ const Game = {
       unholyVespers: 'assets/sprites/weapons/unholyVespers.png',
       magicWand: 'assets/sprites/weapons/magicWand.png',
       emptyTome: 'assets/sprites/weapons/emptyTome.png',
+      fireball: 'assets/sprites/weapons/fireball.png',
+      bible: 'assets/sprites/weapons/bible.png',
+      whip: 'assets/sprites/weapons/whip.png',
+      holyMissile: 'assets/sprites/weapons/holyMissile.png',
+      bloodyTear: 'assets/sprites/weapons/bloodyTear.png',
+      deathSpiral: 'assets/sprites/weapons/deathSpiral.png',
+      thousandEdge: 'assets/sprites/weapons/thousandEdge.png',
+      hellfire: 'assets/sprites/weapons/hellfire.png',
+      might: 'assets/sprites/weapons/might.png',
+      armor: 'assets/sprites/weapons/armor.png',
+      maxHealth: 'assets/sprites/weapons/maxHealth.png',
+      regen: 'assets/sprites/weapons/regen.png',
+      area: 'assets/sprites/weapons/area.png',
+      speed: 'assets/sprites/weapons/speed.png',
+      duration: 'assets/sprites/weapons/duration.png',
+      amount: 'assets/sprites/weapons/amount.png',
+      magnet: 'assets/sprites/weapons/magnet.png',
+      growth: 'assets/sprites/weapons/growth.png',
     };
     for (const [key, src] of Object.entries(assets)) {
       const img = new Image();
@@ -162,12 +180,15 @@ const Game = {
   },
 
   start() {
+    this.reset();
     this.camera.x = Player.x - this.width / 2;
     this.camera.y = Player.y - this.height / 2;
-    WeaponManager.reset();
     this.generateDecorations();
     this.lastTime = performance.now();
-    this.loop(this.lastTime);
+    if (!this._started) {
+      this._started = true;
+      this.loop(this.lastTime);
+    }
   },
 
   loop(time) {
@@ -236,8 +257,10 @@ const Game = {
     // Enemy contact damage with armor reduction
     for (const e of Enemy.list) {
       if (!e.alive) continue;
-      const dx = Player.x - e.x;
-      const dy = Player.y - e.y;
+      const uex = Game.unwrap(e.x, Player.x);
+      const uey = Game.unwrap(e.y, Player.y);
+      const dx = Player.x - uex;
+      const dy = Player.y - uey;
       const threshold = 16;
       if (dx * dx + dy * dy < threshold * threshold) {
         var dmg = 1;
@@ -251,8 +274,10 @@ const Game = {
     // Boss contact damage (doesn't die on contact)
     for (const e of Enemy.list) {
       if (!e.alive || !e.isBoss) continue;
-      const dx = Player.x - e.x;
-      const dy = Player.y - e.y;
+      const uex = Game.unwrap(e.x, Player.x);
+      const uey = Game.unwrap(e.y, Player.y);
+      const dx = Player.x - uex;
+      const dy = Player.y - uey;
       const threshold = 32;
       if (dx * dx + dy * dy < threshold * threshold) {
         var dmg = 2;
@@ -307,12 +332,16 @@ const Game = {
     var cy = this.camera.y;
     var cw = this.width;
     var ch = this.height;
+    var cex = cx + cw / 2;
+    var cey = cy + ch / 2;
     for (var i = 0; i < this.decorations.length; i++) {
       var d = this.decorations[i];
-      if (d.x + d.def.w < cx || d.x > cx + cw || d.y + d.def.h < cy || d.y > cy + ch) continue;
+      var ux = Game.unwrap(d.x, cex);
+      var uy = Game.unwrap(d.y, cey);
+      if (ux + d.def.w < cx || ux > cx + cw || uy + d.def.h < cy || uy > cy + ch) continue;
       var sprite = this.sprites[d.def.key];
       if (!sprite || sprite.width === 0) continue;
-      ctx.drawImage(sprite, d.def.sx, d.def.sy, d.def.w, d.def.h, d.x, d.y, d.def.w, d.def.h);
+      ctx.drawImage(sprite, d.def.sx, d.def.sy, d.def.w, d.def.h, ux, uy, d.def.w, d.def.h);
     }
   },
 };

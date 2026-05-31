@@ -78,7 +78,8 @@ const UI = {
     var margin = 16;
     var mmX = Game.width - mmSize - margin;
     var mmY = Game.height - mmSize - margin;
-    var scale = mmSize / Game.mapSize;
+    var center = mmSize / 2;
+    var worldView = 700;
 
     ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(mmX, mmY, mmSize, mmSize);
@@ -89,17 +90,19 @@ const UI = {
     ctx.save();
     ctx.translate(mmX, mmY);
 
-    var px = Player.x * scale;
-    var py = Player.y * scale;
+    var ms = Game.mapSize;
+    var scale = center / worldView;
 
     for (var ei = 0; ei < Enemy.list.length; ei++) {
       var e = Enemy.list[ei];
       if (!e.alive) continue;
-      var ex = Game.unwrap(e.x, Player.x) * scale;
-      var ey = Game.unwrap(e.y, Player.y) * scale;
-      var edx = ex - px;
-      var edy = ey - py;
-      if (edx * edx + edy * edy > (mmSize * 0.7) * (mmSize * 0.7)) continue;
+      var ux = Game.unwrap(e.x, Player.x);
+      var uy = Game.unwrap(e.y, Player.y);
+      var dx = ux - Player.x;
+      var dy = uy - Player.y;
+      if (Math.abs(dx) > worldView || Math.abs(dy) > worldView) continue;
+      var ex = center + dx * scale;
+      var ey = center + dy * scale;
       ctx.fillStyle = e.isElite ? '#ff0' : '#e22';
       ctx.fillRect(ex - 1.5, ey - 1.5, 3, 3);
     }
@@ -107,18 +110,20 @@ const UI = {
     for (var gi = 0; gi < Enemy.xpGems.length; gi++) {
       var g = Enemy.xpGems[gi];
       if (!g.alive) continue;
-      var gx = Game.unwrap(g.x, Player.x) * scale;
-      var gy = Game.unwrap(g.y, Player.y) * scale;
-      var gdx = gx - px;
-      var gdy = gy - py;
-      if (gdx * gdx + gdy * gdy > (mmSize * 0.7) * (mmSize * 0.7)) continue;
+      var ux = Game.unwrap(g.x, Player.x);
+      var uy = Game.unwrap(g.y, Player.y);
+      var dx = ux - Player.x;
+      var dy = uy - Player.y;
+      if (Math.abs(dx) > worldView || Math.abs(dy) > worldView) continue;
+      var gx = center + dx * scale;
+      var gy = center + dy * scale;
       ctx.fillStyle = '#8f8';
       ctx.fillRect(gx - 1, gy - 1, 2, 2);
     }
 
     ctx.fillStyle = '#4f4';
     ctx.beginPath();
-    ctx.arc(px, py, 3, 0, Math.PI * 2);
+    ctx.arc(center, center, 3, 0, Math.PI * 2);
     ctx.fill();
     ctx.strokeStyle = '#fff';
     ctx.lineWidth = 1;
@@ -304,11 +309,16 @@ const UI = {
         <div>Kills: ${Player.kills}</div>
         <div>Level: ${Player.level}</div>
       </div>
-      <button class="restart-btn" id="restartBtn">RESTART</button>`;
+      <button class="restart-btn" id="restartBtn">RESTART</button>
+      <button class="restart-btn menu-btn" id="menuBtn" style="margin-top:10px;background:#333;border-color:#666;">ГЛАВНОЕ МЕНЮ</button>`;
     overlay.style.display = 'flex';
     document.getElementById('restartBtn').addEventListener('click', () => {
       overlay.style.display = 'none';
       Game.reset();
+    });
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      overlay.style.display = 'none';
+      document.getElementById('mainMenu').style.display = 'flex';
     });
   },
 };
