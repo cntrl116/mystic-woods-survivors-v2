@@ -230,11 +230,12 @@ const UI = {
     // Add passive items
     for (var pid in PASSIVE_DEFS) {
       var pdef = PASSIVE_DEFS[pid];
+      var passiveSprite = PASSIVE_SPRITE_MAP[pid] || null;
       if (!PassiveManager.has(pid)) {
-        pool.push({ type: 'passive', id: pid, name: pdef.nameRu, icon: '\u25C8', desc: passDescRu(pdef) });
+        pool.push({ type: 'passive', id: pid, name: pdef.nameRu, icon: '\u25C8', desc: passDescRu(pdef), _sprite: passiveSprite });
       } else if (!PassiveManager.isMaxed(pid)) {
         var level = PassiveManager.getLevel(pid);
-        pool.push({ type: 'passive', id: pid, name: pdef.nameRu + ' Ур.' + (level + 1), icon: '\u25C8', desc: passDescRu(pdef) });
+        pool.push({ type: 'passive', id: pid, name: pdef.nameRu + ' Ур.' + (level + 1), icon: '\u25C8', desc: passDescRu(pdef), _sprite: passiveSprite });
       }
     }
 

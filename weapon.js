@@ -38,7 +38,7 @@ function damageEnemy(e, dmg) {
 }
 
 var WEAPON_SPRITE_MAP = {
-  magicArrow: 'bow',
+  magicArrow: 'magicWand',
   fireball: 'crystalsword',
   throwingKnife: 'dagger',
   axe: 'doubleaxe',

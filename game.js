@@ -117,6 +117,8 @@ const Game = {
       bora: 'assets/sprites/weapons/bora.png',
       loop: 'assets/sprites/weapons/loop.png',
       unholyVespers: 'assets/sprites/weapons/unholyVespers.png',
+      magicWand: 'assets/sprites/weapons/magicWand.png',
+      emptyTome: 'assets/sprites/weapons/emptyTome.png',
     };
     for (const [key, src] of Object.entries(assets)) {
       const img = new Image();

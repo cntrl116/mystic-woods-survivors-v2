@@ -25,6 +25,10 @@ var EVOLUTION_MAP = {
 
 };
 
+var PASSIVE_SPRITE_MAP = {
+  COOLDOWN: 'emptyTome',
+};
+
 var PassiveManager = {
   items: [],
 
