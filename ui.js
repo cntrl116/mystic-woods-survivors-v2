@@ -130,7 +130,7 @@ const UI = {
   _weaponSpriteTag(spriteKey) {
     if (!spriteKey) return '';
     var s = Game.sprites[spriteKey];
-    if (!s || s.width === 0) return '';
+    if (!s) return '';
     return `<img src="${s.src}" class="upgrade-weapon-img">`;
   },
 
