@@ -44,7 +44,7 @@ var WEAPON_SPRITE_MAP = {
   axe: 'doubleaxe',
   lightning: 'lightning',
   holyWater: 'holyWater',
-  bible: 'longsword',
+  bible: 'emptyTome',
 
   whip: 'flail',
   holyMissile: 'bow',
