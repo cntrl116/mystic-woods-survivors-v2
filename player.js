@@ -22,6 +22,7 @@ const Player = {
   armor: 0,
   regen: 0,
   vampChance: 0,
+  invuln: false,
   animFrame: 0,
   animTimer: 0,
   moving: false,
@@ -120,6 +121,7 @@ const Player = {
   },
 
   takeDamage(amount) {
+    if (this.invuln) return;
     this.hp -= amount;
     if (this.hp <= 0) {
       this.hp = 0;

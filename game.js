@@ -14,6 +14,7 @@ const Game = {
   nukeIntensity: 0,
   shakeTimer: 0,
   shakeIntensity: 20,
+  rageTimer: 0,
 
   wrap: function(v) {
     var ms = this.mapSize;
@@ -142,6 +143,7 @@ const Game = {
       growth: 'assets/sprites/weapons/growth.png',
       vampirism: 'assets/sprites/weapons/vampirism.png',
       nuke: 'assets/sprites/weapons/nuke.png',
+      rage: 'assets/sprites/weapons/rage.png',
     };
     for (const [key, src] of Object.entries(assets)) {
       const img = new Image();
@@ -212,6 +214,7 @@ const Game = {
     Enemy.list.length = 0;
     Enemy.xpGems.length = 0;
     Enemy.nukeItems.length = 0;
+    Enemy.rageItems.length = 0;
     Enemy.pickupParticles.length = 0;
     PassiveManager.reset();
     Spawner.reset();
@@ -242,6 +245,7 @@ const Game = {
     UI.reset();
     this.nukeIntensity = 0;
     this.shakeTimer = 0;
+    this.rageTimer = 0;
     this.state = 'PLAYING';
   },
 
@@ -260,6 +264,18 @@ const Game = {
     }
   },
 
+  triggerRage: function() {
+    this.rageTimer = 8;
+    Player._savedCooldown = Player.cooldown;
+    Player._savedMoveSpeed = Player.moveSpeed;
+    Player.cooldown /= 4;
+    Player.moveSpeed *= 3;
+    Player.invuln = true;
+    Spawner.rageMul = 20;
+    var audio = document.getElementById('rageMusic');
+    if (audio) { audio.currentTime = 0; audio.play(); }
+  },
+
   update(dt) {
     if (this.state !== 'PLAYING') return;
     Player.update(dt);
@@ -272,6 +288,20 @@ const Game = {
     // Nuke visual tick
     if (this.nukeIntensity > 0) this.nukeIntensity -= dt / 0.4;
     if (this.shakeTimer > 0) this.shakeTimer -= dt;
+
+    // Rage tick
+    if (this.rageTimer > 0) {
+      this.rageTimer -= dt;
+      if (this.rageTimer <= 0) {
+        this.rageTimer = 0;
+        Player.cooldown = Player._savedCooldown;
+        Player.moveSpeed = Player._savedMoveSpeed;
+        Player.invuln = false;
+        Spawner.rageMul = 1;
+        var audio = document.getElementById('rageMusic');
+        if (audio) { audio.pause(); audio.currentTime = 0; }
+      }
+    }
 
     // Regen tick every 5s
     UI._regenTimer = (UI._regenTimer || 0) + dt;
@@ -337,6 +367,7 @@ const Game = {
     WeaponManager.render(ctx);
     Enemy.renderXpGems(ctx);
     Enemy.renderNukeItems(ctx);
+    Enemy.renderRageItems(ctx);
     Player.render(ctx);
     ctx.restore();
     if (this.nukeIntensity > 0) {
@@ -356,6 +387,10 @@ const Game = {
         ctx.fillStyle = 'rgba(255, 255, 255, ' + flashA + ')';
         ctx.fillRect(0, 0, this.width, this.height);
       }
+    }
+    if (this.rageTimer > 0) {
+      ctx.fillStyle = 'rgba(80, 0, 0, 0.3)';
+      ctx.fillRect(0, 0, this.width, this.height);
     }
     UI.render(ctx);
   },

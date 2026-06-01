@@ -3,6 +3,7 @@ const Enemy = {
   xpGems: [],
   pickupParticles: [],
   nukeItems: [],
+  rageItems: [],
 
   createBoss: function(x, y) {
     return {
@@ -73,6 +74,17 @@ const Enemy = {
       }
     }
     this.nukeItems.push(ni);
+  },
+
+  spawnRageItem(x, y) {
+    var ri = { x: x, y: y, life: 10, bob: 0, alive: true };
+    for (var i = 0; i < this.rageItems.length; i++) {
+      if (!this.rageItems[i].alive) {
+        this.rageItems[i] = ri;
+        return;
+      }
+    }
+    this.rageItems.push(ri);
   },
 
   spawn(x, y, difficulty, type) {
@@ -151,11 +163,45 @@ const Enemy = {
         }
       }
     }
+
+    for (let i = this.rageItems.length - 1; i >= 0; i--) {
+      var ri = this.rageItems[i];
+      if (!ri.alive) continue;
+      ri.life -= dt;
+      if (ri.life <= 0) { ri.alive = false; continue; }
+      ri.bob += dt * 3;
+      var rux = Game.unwrap(ri.x, Player.x);
+      var ruy = Game.unwrap(ri.y, Player.y);
+      var rdx = Player.x - rux;
+      var rdy = Player.y - ruy;
+      var rdistSq = rdx * rdx + rdy * rdy;
+      var rpickupRadius = 150 + Player.magnet;
+      if (rdistSq < rpickupRadius * rpickupRadius) {
+        if (rdistSq < 400) {
+          Game.triggerRage();
+          ri.alive = false;
+        } else {
+          var rdist = Math.sqrt(rdistSq);
+          var rspeed = 300 + Player.magnet * 0.5;
+          ri.x += (rdx / rdist) * rspeed * dt;
+          ri.y += (rdy / rdist) * rspeed * dt;
+          ri.x = Game.wrap(ri.x);
+          ri.y = Game.wrap(ri.y);
+        }
+      }
+    }
+
     var nw = 0;
     for (var nr = 0; nr < this.nukeItems.length; nr++) {
       if (this.nukeItems[nr].alive) this.nukeItems[nw++] = this.nukeItems[nr];
     }
     this.nukeItems.length = nw;
+
+    var rw = 0;
+    for (var rr = 0; rr < this.rageItems.length; rr++) {
+      if (this.rageItems[rr].alive) this.rageItems[rw++] = this.rageItems[rr];
+    }
+    this.rageItems.length = rw;
 
     for (var pi = this.pickupParticles.length - 1; pi >= 0; pi--) {
       var p = this.pickupParticles[pi];
@@ -174,7 +220,8 @@ const Enemy = {
           e.alive = false;
           Player.kills++;
           Enemy.spawnXpGem(e.x, e.y, e.xp);
-          if (Math.random() < 0.1) { Enemy.spawnNukeItem(e.x, e.y); }
+          if (Math.random() < 0.0005) { Enemy.spawnNukeItem(e.x, e.y); }
+          if (Math.random() < 0.0002) { Enemy.spawnRageItem(e.x, e.y); }
         }
         continue;
       }
@@ -259,6 +306,36 @@ const Enemy = {
         ctx.lineTo(ni.x + 8, ni.y + bob);
         ctx.lineTo(ni.x, ni.y + 10 + bob);
         ctx.lineTo(ni.x - 8, ni.y + bob);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  },
+
+  renderRageItems: function(ctx) {
+    for (var i = 0; i < this.rageItems.length; i++) {
+      var ri = this.rageItems[i];
+      if (!ri.alive) continue;
+      var rx = Game.unwrap(ri.x, Player.x);
+      var ry = Game.unwrap(ri.y, Player.y);
+      var bob = Math.sin(ri.bob) * 2;
+      ctx.save();
+      ctx.translate(rx - ri.x, ry - ri.y);
+      ctx.fillStyle = 'rgba(255, 50, 50, 0.25)';
+      ctx.beginPath();
+      ctx.arc(ri.x, ri.y + bob, 12, 0, Math.PI * 2);
+      ctx.fill();
+      var sprite = Game.sprites.rage;
+      if (sprite && sprite.width > 0) {
+        ctx.drawImage(sprite, ri.x - 16, ri.y - 16 + bob, 32, 32);
+      } else {
+        ctx.fillStyle = '#ff4444';
+        ctx.beginPath();
+        ctx.moveTo(ri.x, ri.y - 10 + bob);
+        ctx.lineTo(ri.x + 8, ri.y + bob);
+        ctx.lineTo(ri.x, ri.y + 10 + bob);
+        ctx.lineTo(ri.x - 8, ri.y + bob);
         ctx.closePath();
         ctx.fill();
       }

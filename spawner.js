@@ -8,11 +8,13 @@ const Spawner = {
   groupInterval: 15,
   bossTimer: 0,
   bossInterval: 60,
+  rageMul: 1,
 
   reset() {
     this.elapsedTime = 0;
     this.timer = 0;
     this.bossTimer = 0;
+    this.rageMul = 1;
   },
 
   update(dt) {
@@ -34,7 +36,7 @@ const Spawner = {
       }
     }
 
-    this.timer += dt;
+    this.timer += dt * this.rageMul;
     const interval = Math.max(this.minInterval, this.baseInterval - this.elapsedTime * this.decreaseRate);
     if (this.timer < interval) return;
     this.timer -= interval;
