@@ -139,7 +139,7 @@ const Enemy = {
       var npickupRadius = 150 + Player.magnet;
       if (ndistSq < npickupRadius * npickupRadius) {
         if (ndistSq < 400) {
-          Game.nukeTimer = 1.0;
+          Game.triggerNuke();
           ni.alive = false;
         } else {
           var ndist = Math.sqrt(ndistSq);

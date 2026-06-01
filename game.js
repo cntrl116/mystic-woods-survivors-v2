@@ -11,8 +11,9 @@ const Game = {
   accumulator: 0,
   fixedDt: 1 / 60,
   decorations: [],
-  nukeTimer: 0,
-  nukeFlash: 0,
+  nukeIntensity: 0,
+  shakeTimer: 0,
+  shakeIntensity: 20,
 
   wrap: function(v) {
     var ms = this.mapSize;
@@ -239,9 +240,24 @@ const Game = {
     Player.x = 1500;
     Player.y = 1500;
     UI.reset();
-    this.nukeTimer = 0;
-    this.nukeFlash = 0;
+    this.nukeIntensity = 0;
+    this.shakeTimer = 0;
     this.state = 'PLAYING';
+  },
+
+  triggerNuke: function() {
+    this.nukeIntensity = 1;
+    this.shakeTimer = 0.5;
+    for (var ei = 0; ei < Enemy.list.length; ei++) {
+      var e = Enemy.list[ei];
+      if (e.alive && !e.dying) {
+        e.dying = true;
+        e.deathTimer = 0.4;
+        if (typeof WeaponManager !== 'undefined') {
+          WeaponManager.addVfx({ type: 'death', x: e.x, y: e.y, timer: 0, duration: 0.3, scale: e.isBoss ? 2 : 1 });
+        }
+      }
+    }
   },
 
   update(dt) {
@@ -253,24 +269,9 @@ const Game = {
     UI.gameTime += dt;
     if (UI.message) { UI.messageTimer -= dt; if (UI.messageTimer <= 0) { UI.message = null; } }
 
-    // Nuke timer
-    if (this.nukeTimer > 0) {
-      this.nukeTimer -= dt;
-      if (this.nukeTimer <= 0) {
-        this.nukeTimer = 0;
-        this.nukeFlash = 0.3;
-        for (var ei = 0; ei < Enemy.list.length; ei++) {
-          var e = Enemy.list[ei];
-          if (e.alive && !e.dying) {
-            e.dying = true;
-            e.deathTimer = 0.4;
-            if (typeof WeaponManager !== 'undefined') {
-              WeaponManager.addVfx({ type: 'death', x: e.x, y: e.y, timer: 0, duration: 0.3, scale: e.isBoss ? 2 : 1 });
-            }
-          }
-        }
-      }
-    }
+    // Nuke visual tick
+    if (this.nukeIntensity > 0) this.nukeIntensity -= dt / 0.4;
+    if (this.shakeTimer > 0) this.shakeTimer -= dt;
 
     // Regen tick every 5s
     UI._regenTimer = (UI._regenTimer || 0) + dt;
@@ -281,9 +282,6 @@ const Game = {
         Player.hp = Math.min(Player.maxHp, Player.hp + Math.max(1, Math.ceil(regenAmt)));
       }
     }
-
-    // Nuke flash tick
-    if (this.nukeFlash > 0) this.nukeFlash -= dt;
 
     // Enemy contact damage with armor reduction
     for (const e of Enemy.list) {
@@ -326,6 +324,13 @@ const Game = {
     ctx.fillStyle = '#1a2a1a';
     ctx.fillRect(0, 0, this.width, this.height);
     ctx.save();
+    if (this.shakeTimer > 0) {
+      var si = this.shakeIntensity * (this.shakeTimer / 0.5);
+      ctx.translate(
+        (Math.random() - 0.5) * 2 * si,
+        (Math.random() - 0.5) * 2 * si
+      );
+    }
     ctx.translate(-this.camera.x, -this.camera.y);
     this.renderMap(ctx);
     Enemy.renderAll(ctx);
@@ -334,13 +339,23 @@ const Game = {
     Enemy.renderNukeItems(ctx);
     Player.render(ctx);
     ctx.restore();
-    if (this.nukeTimer > 0) {
-      ctx.fillStyle = 'rgba(5, 5, 40, 0.45)';
+    if (this.nukeIntensity > 0) {
+      var ni = Math.max(0, this.nukeIntensity);
+      var ringP = 1 - ni;
+      var ringR = ringP * Math.max(this.width, this.height) * 0.8;
+      ctx.fillStyle = 'rgba(5, 5, 40, ' + (0.35 * ni) + ')';
       ctx.fillRect(0, 0, this.width, this.height);
-    }
-    if (this.nukeFlash > 0) {
-      ctx.fillStyle = 'rgba(255, 255, 255, ' + Math.min(1, this.nukeFlash / 0.3) + ')';
-      ctx.fillRect(0, 0, this.width, this.height);
+      if (ringP > 0) {
+        ctx.fillStyle = 'rgba(255, 200, 100, ' + (0.25 * Math.sin(ringP * Math.PI)) + ')';
+        ctx.beginPath();
+        ctx.arc(this.width / 2, this.height / 2, ringR, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      var flashA = ni > 0.8 ? (ni - 0.8) / 0.2 : 0;
+      if (flashA > 0) {
+        ctx.fillStyle = 'rgba(255, 255, 255, ' + flashA + ')';
+        ctx.fillRect(0, 0, this.width, this.height);
+      }
     }
     UI.render(ctx);
   },
